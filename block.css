@@ -18,6 +18,16 @@
 	width:	  100%;
 	text-align: center;
 }
+.nfz-overlay-content h1 {
+	color:	  #B9090B;
+}
+.nfz-overlay-content hr {
+	width:	  10%;
+}
+
+#nfz-deadline {
+	font-size: 150%;
+}
 
 /* 
  * For screens <450px, adapt font-size

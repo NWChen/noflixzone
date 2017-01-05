@@ -4,17 +4,22 @@
 	"version": "1.0",
 	"manifest_version": 2,
 	"permissions": [
+		"storage",
 		"tabs"	
 	],
 	"browser_action": {
 		"default_popup": "index.html"
+	},
+	"background": {
+		"persistent": true,
+		"page": "bg.html"
 	},
 	"content_scripts": [
 		{
 			"matches": ["*://netflix.com/*",
 						"*://www.netflix.com/*"],
 			"css":     ["block.css"],
-			"js": 	   ["script.js"]
+			"js": 	   ["block.js"]
 		}
 	]
 }
