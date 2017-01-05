@@ -1,10 +1,13 @@
 function load_screen() {
-	document.body.innerHTML =
+	document.body.innerHTML +=
+	// Full screen overlay
 	`
-	<html>
-		<link rel="styles.css"></link>
-		<h1>You know better.</h1>
-	</html>
+	<div class="nfz-overlay">
+		<div class="nfz-overlay-content">
+			<h1>You know better.</h1>
+			<h2>No more episodes until tomorrow.</h2>
+		</div>
+	</div>
 	`	
 }
 

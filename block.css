@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans'); 
+
+.nfz-overlay {
+	font-family: 'Open Sans', 'sans-serif';
+	height:   100%;
+	width:    100%;
+	position: fixed;
+	z-index:  1;
+	left:     0;
+	top:	  0;
+	background-color: rgba(0, 0, 0, 0.8);
+	overflow-x: hidden;
+}
+
+.nfz-overlay-content {
+	position: relative;
+	top:	  25%;
+	width:	  100%;
+	text-align: center;
+}
+
+/* 
+ * For screens <450px, adapt font-size
+ */
+@media  screen and (max-height: 450px) {
+}
