@@ -1,0 +1,20 @@
+{
+	"name": "noflixzone",
+	"description": "Aggressive binge-watching prevention.",
+	"version": "1.0",
+	"manifest_version": 2,
+	"permissions": [
+		"tabs"	
+	],
+	"browser_action": {
+		"default_popup": "index.html"
+	},
+	"content_scripts": [
+		{
+			"matches": ["*://netflix.com/*",
+						"*://www.netflix.com/*"],
+			"js": ["js/script.js"]
+		}
+	]
+}
+
