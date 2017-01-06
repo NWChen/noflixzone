@@ -14,17 +14,6 @@ function blockScreen() {
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, response) {
-	console.log("message rcvd");
 	blockScreen();
+	document.getElementByTagName('video').pause(); // pause video player
 });
-
-/*
-window.onload = function() {
-	// on watchid change, increment session variable counter
-	
-	// if include background instances, then poll all tabs for change in watchid
-	// >>  else just poll current tab?	var currentEp = window.location.pathname;
-	
-	blockScreen();
-};
-*/
