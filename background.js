@@ -25,18 +25,27 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	var nfzEps = 0;
 
 	// take advantage of JS lazy evaluation
-	if(tab.url.includes("netflix") && getParamByName("trackId", tab.url) != null) {
+	if(tab.url.includes("netflix") && changeInfo.url != null && getParamByName("trackId", tab.url) != null) {
 		chrome.storage.sync.get('nfzEps', function(result) {
-			nfzEps = result;
-			if(result > 1) {
-				chrome.tabs.sendMessage(tabId, {}); // block
+			nfzEps = result['nfzEps'];
+			console.log("nfzEps is");
+			console.log(nfzEps);
+
+			// assume 2 async calls per tab load
+			if(nfzEps > 1) {
 				console.log("we'd like to block");
+				chrome.tabs.sendMessage(tabId, {"":""}, function(response) {
+					console.log("received response from content script");
+				}); // block
 			}
-		});
-		chrome.storage.sync.set({'nfzEps': nfzEps+1}, function() {
-			console.log(getParamByName("trackId", tab.url
-			console.log("just incr'd nfzEps");
-			console.log(nfzEps+1);
+
+			nfzEps += 1;
+			console.log(nfzEps);
+			chrome.storage.sync.set({'nfzEps': nfzEps}, function() { // storage calls are asynchronous
+				//console.log(getParamByName("trackId", tab.url));
+				console.log("just incr'd nfzEps");
+				console.log(nfzEps+1);
+			});
 		});
 	}
 });
