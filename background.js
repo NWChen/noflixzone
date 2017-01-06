@@ -3,7 +3,12 @@
 // ensure episodes are limited between Chrome windows
 chrome.storage.sync.set({'nfzEps': 0}, function() {
 	console.log("init");
-	// pass
+});
+
+// default nfzEps
+let day = new Date().getDay();
+chrome.storage.sync.set({'nfzDay': day}, function() {
+	console.log("date stored");
 });
 
 // grab value of trackID
@@ -19,10 +24,16 @@ function getParamByName(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
-// detect changes in Netflix tabs
 // sample URL: https://www.netflix.com/watch/70262656?trackId=14170287&tctx=0%2C0%2C156ca756-9cf3-43e6-a806-86166c5d44e6-56107319
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	var nfzEps = 0;
+
+	// clear nfzEps in Storage Area
+	let currentDay = new Date().getDay();
+	chrome.storage.sync.get('nfzEps', function(result) {
+		if(result['nfzDay'] != currentDay) 
+			console.log("error");
+	});
 
 	// take advantage of JS lazy evaluation
 	if(tab.url.includes("netflix") && changeInfo.url != null && getParamByName("trackId", tab.url) != null) {
@@ -33,7 +44,8 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
 			// assume 2 async calls per tab load
 			if(nfzEps > 1) {
-				console.log("we'd like to block");
+				console.log("we'd like to block. tab with id:");
+				console.log(tabId);
 				chrome.tabs.sendMessage(tabId, {"":""}, function(response) {
 					console.log("received response from content script");
 				}); // block

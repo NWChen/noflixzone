@@ -9,13 +9,14 @@ function blockScreen() {
 			<h2>No more episodes until</h2>
 			<span id="nfz-deadline">tomorrow at 5:20pm.</span>
 		</div>
-	</div>
+		</div>
 	`	
 }
 
-chrome.runtime.onMessage.addListener(function(req, sender, response) {
+chrome.runtime.onMessage.addListener(function(request, sender, response) {
+	console.log("message rcvd");
 	blockScreen();
-}
+});
 
 /*
 window.onload = function() {

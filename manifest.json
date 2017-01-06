@@ -12,14 +12,15 @@
 	},
 	"background": {
 		"persistent": true,
-		"page": "bg.html"
+		"scripts": ["background.js"]
 	},
 	"content_scripts": [
 		{
 			"matches": ["*://netflix.com/*",
 						"*://www.netflix.com/*"],
 			"css":     ["block.css"],
-			"js": 	   ["block.js"]
+			"js": 	   ["block.js"],
+			"run_at":  "document_end"
 		}
 	]
 }
