@@ -1,18 +1,25 @@
 @import url('https://fonts.googleapis.com/css?family=Open+Sans');
 
+/*
+ *  Chrome adds a white border/background around the popup. Can't do anything about that.
+ */
 body {
+	background-color: #EEEEEE;
 	font-family: 'Open Sans', sans-serif;
-	min-width: 300px;
+	min-width: 	300px;
 	min-height: 300px;
 }
 
 .container {
-	position: absolute;
-	left: 50%;
+	position: 	absolute;
+	left: 	  	50%;
 	text-align: center;
-	top: 50%;
+	top: 		50%;
 	-webkit-transform: translate(-50%, -50%);
 	transform: translate(-50%, -50%);
 }
 
+#sassCaption {
+	color: 		#A2A2A2;
+}
 
