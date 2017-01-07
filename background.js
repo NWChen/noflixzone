@@ -1,63 +1,98 @@
-// watch all, or only the current, tab for a change in episode.
-
-// ensure episodes are limited between Chrome windows
-chrome.storage.sync.set({'nfzEps': 0}, function() {
-	console.log("init");
-});
-
-// default nfzEps
-let day = new Date().getDay();
-chrome.storage.sync.set({'nfzDay': day}, function() {
-	console.log("date stored");
-});
-
-// grab value of trackID
-function getParamByName(name, url) {
-	if (!url)
-      url = window.location.href;
-
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
+/*
+ *  Asks content script to block the current page.
+ */
+const blockPage = function blockPage(tabId) {
+	chrome.tabs.sendMessage(tabId, {action: 'block_page'}, function(response) {
+		console.log("Content script returned successfully with response: " + response);
+	});
 }
 
-// sample URL: https://www.netflix.com/watch/70262656?trackId=14170287&tctx=0%2C0%2C156ca756-9cf3-43e6-a806-86166c5d44e6-56107319
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-	var nfzEps = 0;
-
-	// clear nfzEps in Storage Area
-	let currentDay = new Date().getDay();
-	chrome.storage.sync.get('nfzEps', function(result) {
-		if(result['nfzDay'] != currentDay) 
-			console.log("error");
+/*
+ *  Gets the number of episodes watched so far.
+ */
+const getEpsWatched = function getEpsWatched() {
+	chrome.storage.sync.get('nfzEps', function(response) {
+		if(response['nfzEps']) {
+			console.log("nfzEps retrieved successfully with value: " + response['nfzEps']);
+			return response['nfzEps'];
+		}
+		return null;
 	});
+}
 
-	// take advantage of JS lazy evaluation
-	if(tab.url.includes("netflix") && changeInfo.url != null && getParamByName("trackId", tab.url) != null) {
-		chrome.storage.sync.get('nfzEps', function(result) {
-			nfzEps = result['nfzEps'];
-			console.log("nfzEps is");
-			console.log(nfzEps);
+/*
+ *  Gets the trackId of the last video watched.
+ */
+const getLastEp = function getLastEp() {
+	chrome.storage.sync.get('nfzLastEp', function(response) {
+		if(response['nfzLastEp']) {
+			console.log("nfzLastEp retrieved successfully with value: " + response['nfzLastEp']);
+			return response['nfzLastEp'];
+		}	
+		return null;
+	});
+}
 
-			// assume 2 async calls per tab load
-			if(nfzEps > 1) {
-				console.log("we'd like to block. tab with id:");
-				console.log(tabId);
-				chrome.tabs.sendMessage(tabId, {"":""}, function(response) {
-					console.log("received response from content script");
-				}); // block
-			}
+/*
+ *  Grabs the trackId of the current URL.
+ *  Credits to David Walsh (https://davidwalsh.name).
+ */
+const getTrackId = function getTrackId(url) {
+	//name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + 'trackId' + '=([^&#]*)');
+    var results = regex.exec(url);
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+}
 
-			nfzEps += 1;
-			console.log(nfzEps);
-			chrome.storage.sync.set({'nfzEps': nfzEps}, function() { // storage calls are asynchronous
-				//console.log(getParamByName("trackId", tab.url));
-				console.log("just incr'd nfzEps");
-				console.log(nfzEps+1);
-			});
-		});
+/*
+ *  Watch all tabs for netflix. Should be called whenever tabs are updated.
+ *  TODO: find a workaround for tabs[0], since currentWindow never seems to be true?
+ *  TODO: make sure netflix is only part of the domain, not the path
+ *  TODO: find a way around 'active: true', for background instances of Netflix
+ */
+const watchTabs = function watchTabs() {
+	chrome.tabs.query({active: true}, function(tabs) {
+		if(tabs[0].url.indexOf('netflix') > -1) {
+			return true;
+		}
+		return false;
+	});
+}
+
+/*
+ *  Classify a video as watched.
+ *  TODO: add time elapsing condition
+ * 	TODO: clear Storage on extension leaving
+ */
+const isWatched = function isWatched(trackId) {
+	var watched = false;
+	chrome.storage.sync.get('nfzTrackId', function(trackObj) {
+		if(trackObj['nfzTrackId'] != trackId) {
+			chrome.storage.sync.set({'nfzTrackId': trackId});	// Reset current trackId
+			console.log('isWatched() found a new episode being currently watched.');
+			return true;
+		}
+		console.log('isWatched() did not find a new episode being currently watched.');
+		return false;
+	});
+}
+
+// Initialize values in Storage Area.
+chrome.storage.sync.set({'nfzEps': 0}, function(response) {
+	console.log('nfzEps was successfully initialized.');
+});
+chrome.storage.sync.set({'nfzTrackId': 0}, function(response) {
+	console.log('nfzTrackId was successfully initialized.');
+});
+
+
+// Watch for changes in any tabs, so we can look out for Netflix instances in background tabs too.
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+	// JS lazy evaluation
+	//if(watchTabs && isWatched(getTrackId(tab.url))) {
+	if(watchTabs) {
+		if(isWatched(getTrackId(tab.url)))
+		// ...block if necessary...	
+			console.log("New episode!");	
 	}
 });
