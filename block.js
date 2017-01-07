@@ -3,6 +3,7 @@ chrome.runtime.onMessage.addListener(
 	function(request, sender) {
 		console.log("Blocking page now.");
 		if(request.action=='block_page') {
+			document.getElementByTagName('video')[0].pause();	// pause the video
 			document.body.innerHTML +=
 			`
 			<div class="nfz-overlay">
