@@ -40,6 +40,20 @@ const sass = function sass(maxEps, lastMaxEps) {
 }
 
 /*
+ *  Watch for changes to the nfzBlock flag.
+ *  Vary visibility of blocked/prompt divs.
+ */
+chrome.runtime.onMessage.addListener(
+	function(request, sender, sendResponse) {
+		if(request.greeting == 'BLOCK') {
+			debugMessage(['Blocked div appearing, Prompt div disappearing']);
+			document.querySelector('.blocked').style.display = 'inline';
+			document.querySelector('.prompt').style.display = 'none';
+			sendResponse({farewell: 1});
+		}
+});
+
+/*
  *  Watch for changes in the maximum number of episodes dropdown.
  */
 var lastMaxEps = 1;
