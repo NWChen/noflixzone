@@ -1,5 +1,5 @@
 const DEBUG = 1;
-const MAX_EPS = 1;
+var MAX_EPS = 1;
 
 /*
  *  Output a message to the console.
@@ -89,6 +89,14 @@ chrome.storage.sync.set({'nfzTrackId': 0}, function(response) {
 	debugMessage('main', ['nfzTrackId was successfully initialized.']);
 });
 
+/*
+ *  Watch for updates to maxEps.
+ */
+chrome.runtime.onMessage.addListener(function(request, sender, response) {
+	if(request.greeting != null && request.greeting != MAX_EPS)
+		MAX_EPS = request.greeting;
+	debugMessage('onMsg', ['updated MAX_EPS to ', MAX_EPS]);
+});
 
 /*
  *  Watch for changes in any tabs, so we can look out for Netflix instances in background tabs too.
