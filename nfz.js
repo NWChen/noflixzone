@@ -45,10 +45,13 @@ const sass = function sass(maxEps, lastMaxEps) {
  */
 chrome.runtime.onMessage.addListener(
 	function(request, sender, sendResponse) {
+		debugMessage(['Received message from background.js']);
 		if(request.greeting == 'BLOCK') {
+
+			// Modify the popup
 			debugMessage(['Blocked div appearing, Prompt div disappearing']);
 			document.querySelector('.blocked').style.display = 'inline';
-			document.querySelector('.prompt').style.display = 'none';
+			document.querySelector('.prompt').style.display  = 'none';
 			sendResponse({farewell: 1});
 		}
 });
@@ -73,10 +76,8 @@ document.addEventListener('DOMContentLoaded', function() {
 				sass(maxEps, lastMaxEps);
 				lastMaxEps = maxEps;
 			}
-			debugMessage(['evt sent']);
 		});
 
-		debugMessage(['evt val: ', evt.srcElement.value]);
 	}, false);
 
 	options.dispatchEvent(evt);

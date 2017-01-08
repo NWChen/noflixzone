@@ -2,7 +2,23 @@ const DEBUG = 1;
 var MAX_EPS = 1;
 
 /*
+ *  Reset episodes watched so far. 
+ *  FOR DEBUGGING ONLY
+ */
+const resetEps = function resetEps() {
+	if(DEBUG) {
+		chrome.storage.sync.set({'nfzEps': 0}, function(response) {
+			debugMessage('resetEps()', ['nfzEps has been reset with ', response, ' as response']);
+		});
+		chrome.storage.sync.set({'nfzTrackId': ''}, function(response) {
+			debugMessage('resetEps()', ['nfzTrackId has been reset with ', response, ' as response']);
+		});
+	}
+};
+
+/*
  *  Output a message to the console.
+ *	FOR DEBUGGING ONLY
  */
 const debugMessage = function debugMessage(caller, msg) {
 	if(DEBUG) {
@@ -21,6 +37,11 @@ const debugMessage = function debugMessage(caller, msg) {
 const blockPage = function blockPage(tabId) {
 	chrome.tabs.sendMessage(tabId, {action: 'block_page'}, function(response) {
 		debugMessage('blockPage()', ['content script returned successfully']);
+	});
+
+	// Instruct the popup to acknowledge blocking
+	chrome.runtime.sendMessage({greeting: 'BLOCK'}, function(response) {
+		debugMessage('blockPage()', ['popup responded with ', response]);
 	});
 };
 
@@ -115,7 +136,9 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
 					// Check if the max number of episodes has been watched.
 					incrementEps(function(nfzEps) {
-						if(nfzEps > MAX_EPS) {
+						
+						// JS lazy evaluation
+						if(nfzEps > MAX_EPS && tab.status && tab.status=='complete') {
 							blockPage(tabId);
 						}
 					});		
